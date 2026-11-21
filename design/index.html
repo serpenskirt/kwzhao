@@ -9,7 +9,8 @@
   :root { --u: min(calc(100vw / 1920), calc(100vh / 1080)); --grey: rgb(160, 160, 160); --move: 480ms; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; overflow: hidden; background: #000; color: #fff; overscroll-behavior: none; }
-  body { font: 400 calc(var(--u) * 24) / calc(var(--u) * 30) Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased; user-select: none; -webkit-user-select: none; }
+  /* line height 120 % everywhere (Ken, 2026-11-21), as Figma renders it: 24 px type on 29 px lines (28.8 rounded) */
+  body { font: 400 calc(var(--u) * 24) / calc(var(--u) * 29) Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased; user-select: none; -webkit-user-select: none; }
   a { color: inherit; text-decoration: none; }
   i { font-style: italic; }
 
@@ -135,18 +136,19 @@
   @supports (height: 100dvh) { :root { --u: min(calc(100vw / 1920), calc(100dvh / 1080)); } }
   body.work { touch-action: none; }
 
-  /* ---------- Small screens (provisional: not designed in Figma yet) ---------- */
-  body.mobile { font-size: 14px; line-height: 19px; }
+  /* ---------- Small screens: Ken's 'M ·' frames (landing = 'M · Index-landing', 2026-11-21) ---------- */
+  body.mobile { font-size: 14px; line-height: 17px; }           /* 120 %, as Figma renders it (16.8 rounded) */
   body.mobile #landing { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 16px 56px; }
   body.mobile #landing .name, body.mobile #landing .bio, body.mobile #landing .right { position: static; width: auto; }
-  body.mobile #landing .bio { margin-top: 38px; }
+  body.mobile #landing .bio { margin-top: 40px; }                           /* bio at y 71 */
+  body.mobile #landing .bio, body.mobile #landing .right { margin-left: -1px; }   /* bio and index on Ken's 15 px guide; name line stays at 16 */
   body.mobile #landing .name { display: flex; justify-content: space-between; }
   body.mobile #landing .m-email { display: inline; user-select: text; -webkit-user-select: text; }
   body.mobile #landing .bar a { display: none; }
   body.mobile #landing .bio p + p { margin-top: 15px; }
   body.mobile #landing .right { margin-top: 60px; }
-  body.mobile #landing ol { margin-top: 20px; max-width: 316px; }
-  body.mobile #landing li + li { margin-top: 5px; }
+  body.mobile #landing ol { margin-top: 20px; max-width: 359px; }
+  body.mobile #landing li + li { margin-top: 15.4px; }                      /* Ken's frame: rows 15.4 apart (fixed-height list, space-between) */
   body.mobile #landing li .no { flex-basis: 31px; }
   body.mobile #landing li br { display: none; }
   #landing .bar a { user-select: text; -webkit-user-select: text; }
@@ -154,8 +156,9 @@
   body.mobile #nav { left: 16px; top: 14px; }
   body.mobile #index { padding-left: 0; }
   body.mobile #index li { padding: 0 16px 0 0; }
-  /* Ken's tightened phone index ('M · index open', 2026-11-21): 16 px between lines, text still set on a 19 px line as in Figma */
-  body.mobile #index li { height: 16px; line-height: 19px; }
+  /* Ken's tightened phone index ('M · index open', 2026-11-21): lines 16 px apart from y 33, text on a 120 % line as in Figma */
+  body.mobile #index { margin-top: 2px; }
+  body.mobile #index li { height: 16px; line-height: 17px; }
   body.mobile #projline { left: 16px; right: 16px; top: auto; bottom: 16px; white-space: normal; }
 </style>
 </head>
@@ -288,7 +291,7 @@ WORKS.forEach(w => { if (!w.slides.length) { w.slides = [null]; w.placeholder = 
 const PHONE = {
   '01-1': [[0, 16, 309.7, 358, 208.7]],
   '01-2': [[1, 94, 243, 201.5, 358.3]],
-  '01-3': [[0, 65, 163, 260, 518, { bare: 1, r: 40, video: '04-web-phone-m.mp4', poster: '04-web-phone-m-poster.jpg' }]],   // the phone stream from 5.0 s (black before that)
+  '01-3': [[0, 65, 163, 260, 518, { bare: 1, r: 40, video: '04-web-phone-m2.mp4', poster: '04-web-phone-m2-poster.jpg' }]],   // Ken's phone cut rebuilt from the raw 720 x 1460 recording (620 x 1236, web page only)
   '01-4': [[1, 45, 123, 300, 598.2]],
   '02-1': [[0, 16, 294.6, 358, 238.9]],
   '02-2': [[0, 16, 287.9, 358, 252.3]],
