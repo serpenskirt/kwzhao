@@ -27,7 +27,8 @@
   #landing .m-email { display: none; }
   #landing .bio { position: absolute; left: calc(var(--u) * 24); top: calc(var(--u) * 107); width: calc(var(--u) * 776); }
   #landing .bio p + p { margin-top: calc(var(--u) * 30); }
-  #landing .right { position: absolute; left: calc(50% + var(--u) * 62); right: calc(var(--u) * 24); top: calc(var(--u) * 24); }
+  /* Ken's Index-landing (2026-11-21): the top bar and index are one 800-wide block ending 24 from the right (x 1096–1896) */
+  #landing .right { position: absolute; right: calc(var(--u) * 24); width: calc(var(--u) * 800); top: calc(var(--u) * 24); }
   #landing .bar { display: flex; justify-content: space-between; }
   #landing ol { list-style: none; margin-top: calc(var(--u) * 60); }
   #landing li { display: flex; cursor: pointer; }
@@ -340,7 +341,8 @@ const MOVE = matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 480;
 
 WORKS.forEach((w, i) => {
   // landing index: number, italic title, client, scope, year
-  const li = el('li', '', `<span class="no">${w.no}</span><span><i>${w.title}</i>, ${w.client}, ${w.oneLine ? '' : '<br>'}${w.scope}, ${w.year}</span>`);
+  // one line of text that wraps by itself, as in Ken's Index-landing (no forced break after the client)
+  const li = el('li', '', `<span class="no">${w.no}</span><span><i>${w.title}</i>, ${w.client}, ${w.scope}, ${w.year}</span>`);
   li.addEventListener('click', () => goWork(i, 0));
   $('#home-index').append(li);
   // index inside a work: number + title
