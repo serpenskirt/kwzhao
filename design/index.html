@@ -25,15 +25,18 @@
   /* Landing */
   #landing .name { position: absolute; left: calc(var(--u) * 24); top: calc(var(--u) * 24); }
   #landing .m-email { display: none; }
-  #landing .bio { position: absolute; left: calc(var(--u) * 24); top: calc(var(--u) * 107); width: calc(var(--u) * 776); }
+  /* Ken's Index-landing (2026-11-21, second edit): three columns. Name and bio 24–776 (bio 752 wide);
+     SELECTED WORKS and the index 521 wide from x 952 (8 left of centre); the email alone at the top right, ending at 1897. */
+  #landing .bio { position: absolute; left: calc(var(--u) * 24); top: calc(var(--u) * 107); width: calc(var(--u) * 752); }
   #landing .bio p + p { margin-top: calc(var(--u) * 30); }
-  /* Ken's Index-landing (2026-11-21): the top bar and index are one 800-wide block ending 24 from the right (x 1096–1896) */
-  #landing .right { position: absolute; right: calc(var(--u) * 24); width: calc(var(--u) * 800); top: calc(var(--u) * 24); }
-  #landing .bar { display: flex; justify-content: space-between; }
+  #landing .right { position: absolute; left: calc(50% - var(--u) * 8); width: calc(var(--u) * 521); top: calc(var(--u) * 24); }
+  #landing .bar a { position: fixed; right: calc(var(--u) * 23); top: calc(var(--u) * 24); }
   #landing ol { list-style: none; margin-top: calc(var(--u) * 60); }
   #landing li { display: flex; cursor: pointer; }
   #landing li + li { margin-top: calc(var(--u) * 10); }
   #landing li .no { flex: 0 0 calc(var(--u) * 42); }
+  /* desktop only: Ken set entry 02 to -2.5 % letter spacing so its year stays on the second line (no orphan) */
+  body:not(.mobile) #landing li.tight .no + span { letter-spacing: -0.025em; }
 
   /* Work pages */
   .stage { position: absolute; left: 50%; top: 50%; width: calc(var(--u) * 1920); height: calc(var(--u) * 1080); transform: translate(-50%, -50%); }
@@ -201,7 +204,7 @@ const WORKS = [
     [ { igpost: true, video: '04-ig-post.mp4', poster: '04-ig-post-poster.jpg', x: 620, y: 216, w: 328, h: 654, radius: 52 },
       { igreel: true, video: '04-ig-reel.mp4', poster: '04-ig-reel-poster.jpg', x: 978, y: 219, w: 325, h: 648, radius: 52 } ],
   ] },
-  { no: '02', title: 'Theodore Roosevelt Presidential Library', client: 'TRPL Foundation', scope: 'signage and wayfinding', year: '2025', slides: [
+  { no: '02', title: 'Theodore Roosevelt Presidential Library', client: 'TRPL Foundation', scope: 'signage and wayfinding', year: '2025', tight: true, slides: [
     [ { img: '02-opener.jpg', x: 313, y: 108, w: 1295, h: 864 } ],
     // both signage loops at double speed (Ken, red notes on 02-2 and 02-4): every frame kept, 60 fps
     [ { video: '02-signage-1-2x.mp4', poster: '02-signage-1-poster.jpg', x: 347, y: 108, w: 1226, h: 864 } ],
@@ -342,7 +345,7 @@ const MOVE = matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 480;
 WORKS.forEach((w, i) => {
   // landing index: number, italic title, client, scope, year
   // one line of text that wraps by itself, as in Ken's Index-landing (no forced break after the client)
-  const li = el('li', '', `<span class="no">${w.no}</span><span><i>${w.title}</i>, ${w.client}, ${w.scope}, ${w.year}</span>`);
+  const li = el('li', w.tight ? 'tight' : '', `<span class="no">${w.no}</span><span><i>${w.title}</i>, ${w.client}, ${w.scope}, ${w.year}</span>`);
   li.addEventListener('click', () => goWork(i, 0));
   $('#home-index').append(li);
   // index inside a work: number + title
