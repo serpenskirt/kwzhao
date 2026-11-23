@@ -44,6 +44,7 @@
   .slide.on { visibility: visible; }
   .slide img, .slide video { position: absolute; display: block; object-fit: cover; background: #111; }
   .slide .it { overflow: hidden; }
+  .slide img.clear { background: none; }                  /* pictures with transparent margins (Diez shop windows) */
   .slide .safari { position: absolute; background: #fff; }
   .slide .safari .bar { position: absolute; inset: 0 0 auto 0; height: 5.57em; background: rgb(240, 240, 240); }
   .slide .safari .bar i { position: absolute; top: 1.86em; width: 1.86em; height: 1.86em; border-radius: 50%; background: rgb(255, 94, 87); left: 2em; }
@@ -212,8 +213,12 @@
 /* ---------- Content. Positions are the Figma frame coordinates (1920 x 1080). ---------- */
 const A = 'assets/';
 const PGH = [1, 2, 3, 4, 5, 6, 7].map(n => `06-pgh-${n}.jpg`);   // "This Month in Pittsburgh", November: the seven slides of one post
+/* WORKS: every work, in the order it appears on the site (01, 02, … are counted at load from the works shown).
+   To switch a work OFF, add  off: true,  after its id, e.g.  { id: 'doom', off: true, title: 'DOOM', …
+   To switch it back ON, delete  off: true,  again. Nothing else changes: its slides, items and PHONE layouts
+   (keyed by id, e.g. 'doom-1') stay in the file, and the numbers and #NN-k links of the other works follow by themselves. */
 const WORKS = [
-  { no: '01', title: 'What a Wonderful World', client: 'Julia Stoschek Foundation', scope: 'identity, web and paid campaign', year: '2026', slides: [
+  { id: 'jsf', title: 'What a Wonderful World', client: 'Julia Stoschek Foundation', scope: 'identity, web and paid campaign', year: '2026', slides: [
     [ { video: '04-hero-reel.mp4', poster: '04-hero-reel-poster.jpg', x: 23, y: 0, w: 1875, h: 1093 } ],
     [ { img: '04-lockup.jpg', x: 511, y: 216, w: 518, h: 648 }, { img: '04-artist-list.jpg', x: 1044, y: 216, w: 364.5, h: 648 } ],
     // website: cut from Ken's reference video (same frames and timing, backdrop removed). The desktop screen plays alone until 5.0 s,
@@ -224,7 +229,7 @@ const WORKS = [
     [ { igpost: true, sponsored: 'Sign up', video: '04-ig-post.mp4', poster: '04-ig-post-poster.jpg', x: 620, y: 216, w: 328, h: 654, radius: 52 },
       { igreel: true, video: '04-ig-reel.mp4', poster: '04-ig-reel-poster.jpg', x: 978, y: 219, w: 325, h: 648, radius: 52 } ],
   ] },
-  { no: '02', title: 'Theodore Roosevelt Presidential Library', client: 'TRPL Foundation', scope: 'signage and wayfinding', year: '2025', tight: true, slides: [
+  { id: 'trpl', title: 'Theodore Roosevelt Presidential Library', client: 'TRPL Foundation', scope: 'signage and wayfinding', year: '2025', tight: true, slides: [
     [ { img: '02-opener.jpg', x: 313, y: 108, w: 1295, h: 864 } ],
     // both signage loops at double speed (Ken, red notes on 02-2 and 02-4): every frame kept, 60 fps
     [ { video: '02-signage-1-2x.mp4', poster: '02-signage-1-poster.jpg', x: 347, y: 108, w: 1226, h: 864 } ],
@@ -232,7 +237,7 @@ const WORKS = [
     [ { video: '02-signage-2-2x.mp4', poster: '02-signage-2-poster.jpg', x: 347, y: 108, w: 1226, h: 864 } ],
     [ { img: '02-exhibition.jpg', x: 384, y: 108, w: 1152, h: 864 } ],
   ] },
-  { no: '03', title: 'Hyundai Artlab', client: 'Hyundai Motor Company', scope: 'brand system, social and paid media', year: '2026', slides: [
+  { id: 'hyundai', title: 'Hyundai Artlab', client: 'Hyundai Motor Company', scope: 'brand system, social and paid media', year: '2026', slides: [
     // five slides, kept minimal (Ken): the "Hyundai Artlab" wordmark from the film outro, alone, filling the window; the light leaks in use,
     // three stories stepping through one phone (story header, centred in the screen, no reply bar) while the matching clean leak fills the window behind;
     // the digital commissions on the site beside a supercut of their social pieces; three other pieces, the ICA 06-2 arrangement:
@@ -250,11 +255,11 @@ const WORKS = [
       { video: '08-paid-reddit.mp4', poster: '08-paid-reddit-poster.jpg', x: 563.5, y: 228, w: 832, h: 624 },
       { video: '08-paid-designboom-banner.mp4', poster: '08-paid-designboom-banner-poster.jpg', x: 1410.5, y: 228, w: 312, h: 624 } ],
   ] },
-  { no: '04', title: 'Jannis Kounellis', client: 'Fondazione Prada', scope: 'exhibition catalogue', year: '2022', slides: [
+  { id: 'kounellis', title: 'Jannis Kounellis', client: 'Fondazione Prada', scope: 'exhibition catalogue', year: '2022', slides: [
     [ { img: '01-cover.jpg', x: 178, y: 216, w: 488, h: 649 }, { img: '01-spread-1.jpg', x: 756, y: 216, w: 1002, h: 649 } ],
     [ { img: '01-spread-2.jpg', x: 54, y: 151, w: 1071, h: 733 }, { img: '01-spread-3.jpg', x: 1159, y: 151, w: 689, h: 460 } ],
   ] },
-  { no: '05', title: 'ICA Pittsburgh', client: 'Institute for Contemporary Art Pittsburgh', scope: 'social system, motion', year: '2026', slides: [
+  { id: 'ica', title: 'ICA Pittsburgh', client: 'Institute for Contemporary Art Pittsburgh', scope: 'social system, motion', year: '2026', slides: [
     [ { video: '06-key-visual.mp4', poster: '06-key-visual-poster.jpg', x: 192, y: 108, w: 1536, h: 864 } ],
     [ { img: '06-oq-1.jpg', x: 216, y: 216, w: 486, h: 648 }, { img: '06-oq-2.jpg', x: 717, y: 216, w: 486, h: 648 }, { img: '06-oq-3.jpg', x: 1218, y: 216, w: 486, h: 648 } ],   // stills (Ken: "those should be still, not video")
     // one carousel post, played as a slideshow: the phone stays put and the seven slides step through it one at a time;
@@ -264,14 +269,14 @@ const WORKS = [
     [ { img: '06-wall-01.jpg', x: 313, y: 108, w: 323.5, h: 431.3 }, { img: '06-wall-02.jpg', x: 636.5, y: 108, w: 323.5, h: 431.3 }, { img: '06-wall-05.jpg', x: 960, y: 108, w: 323.5, h: 431.3 }, { img: '06-wall-03.jpg', x: 1283.5, y: 108, w: 323.5, h: 431.3 },
       { img: '06-wall-12.jpg', x: 313, y: 538.9, w: 323.5, h: 431.3 }, { img: '06-wall-11.jpg', x: 636.5, y: 538.9, w: 323.5, h: 431.3 }, { img: '06-wall-06.jpg', x: 960, y: 538.9, w: 323.5, h: 431.3 }, { img: '06-wall-10.jpg', x: 1283.5, y: 538.9, w: 323.5, h: 431.3 } ],
   ] },
-  { no: '06', title: 'Foreign Object Debris', client: 'Yngve Holen', scope: 'publication', year: '2021', slides: [
+  { id: 'fod', title: 'Foreign Object Debris', client: 'Yngve Holen', scope: 'publication', year: '2021', slides: [
     [ { img: '11-cover.jpg', x: 608, y: 115, w: 703, h: 850 } ],
     [ { img: '11-spread-text.jpg', x: 0, y: 229, w: 715, h: 842 }, { img: '11-spread-sculpture.jpg', x: 734, y: 238, w: 1180, h: 842 } ],
     // slides 3-4 restored from Ken's January 2025 deck export (Portfolio_Zhao.pdf pp. 20-21), images from Fod Book Photos and fod_3.png
     [ { img: '11-spread-yellow.jpg', x: 0, y: 204.5, w: 1062.1, h: 841.7 }, { img: '11-spread-gallery.jpg', x: 1091.5, y: 215.1, w: 828.5, h: 820.5 } ],
     [ { img: '11-spread-carbon.jpg', x: 0, y: 169.1, w: 1113.8, h: 874.9 }, { img: '11-photo-red.jpg', x: 1137.8, y: 255.6, w: 782.2, h: 755.8 } ],
   ] },
-  { no: '07', title: 'Culture of Bathe-ing', client: 'Therme Group', scope: 'ticketing campaign and paid social', year: '2026', slides: [
+  { id: 'cob', title: 'Culture of Bathe-ing', client: 'Therme Group', scope: 'ticketing campaign and paid social', year: '2026', slides: [
     // only pieces whose files carry KZ: the thermal-glow logo (Ken's dark-ad folder, looped), the wheat-paste triptych,
     // the posters on the street (dusk, night), Ken's two dark ads as stories in the standard phone
     [ { video: '12-thermal-logo.mp4', poster: '12-thermal-logo-poster.jpg', x: 192, y: 108, w: 1536, h: 864 } ],
@@ -281,24 +286,37 @@ const WORKS = [
     [ { phone: true, story: true, ad: { acct: 'cultureofbatheing', cta: 'Book now' }, video: '12-dark-ad-1.mp4', poster: '12-dark-ad-1-poster.jpg', x: 617, y: 213, w: 328, h: 654, radius: 52.5 },
       { phone: true, story: true, ad: { acct: 'cultureofbatheing', cta: 'Book now' }, video: '12-dark-ad-2.mp4', poster: '12-dark-ad-2-poster.jpg', x: 975, y: 213, w: 328, h: 654, radius: 52.5 } ],
   ] },
-  { no: '08', title: 'Sirens', client: 'EVA Foundation', scope: 'exhibition catalogue', year: '2026', oneLine: true, slides: [
+  { id: 'sirens', title: 'Sirens', client: 'EVA Foundation', scope: 'exhibition catalogue', year: '2026', oneLine: true, slides: [
     // Ken's re-cut on the Web Outline (2026-11-21): front cover (his slight crop baked in) + Judy Chicago; spread 19 print mock + index
     [ { img: '03-cover-front-crop.jpg', x: 345, y: 279, w: 385, h: 583 }, { img: '03-judy-chicago.jpg', x: 820, y: 279, w: 754, h: 583 } ],
     [ { img: '03-spread-19.jpg', x: 192, y: 193, w: 894.6, h: 694.7 }, { img: '03-index.jpg', x: 1104.7, y: 193, w: 621.5, h: 480.3 } ],
   ] },
-  { no: '09', title: 'Lonely Planet', client: 'in-house', scope: 'app marketing and social campaigns', year: '2025', slides: [
+  { id: 'lonely-planet', title: 'Lonely Planet', client: 'in-house', scope: 'app marketing and social campaigns', year: '2025', slides: [
     // Ken's 03-1…3 (2026-11-21): the app campaign on the street, three App Store screens, three Best in Travel stories
     [ { img: 'lp-ooh-street.jpg', x: 310.7, y: 108, w: 1298.6, h: 864 } ],
     [ { img: 'lp-appstore-cover.jpg', x: 349.4, y: 108, w: 397.1, h: 864 }, { img: 'lp-appstore-explore.jpg', x: 761.5, y: 108, w: 397.1, h: 864 },
       { img: 'lp-appstore-itineraries.jpg', x: 1173.5, y: 108, w: 397.1, h: 864 } ],
     [ { img: 'lp-bit-cartagena.jpg', x: 216, y: 108, w: 486, h: 864 }, { img: 'lp-bit-japan.jpg', x: 717, y: 108, w: 486, h: 864 }, { img: 'lp-bit-cadiz.jpg', x: 1218, y: 108, w: 486, h: 864 } ],
   ] },
+  { id: 'diez', title: 'Diez', client: 'Diez Gallery', scope: 'creative direction, identity and merchandise', year: '2021–2023', slides: [
+    // Ken's 10-1…4 on the Web Outline (2026-11-23). 10-1: one video, the wordmark shrinking into the square, then the opening animation (18.6 s loop)
+    [ { video: 'diez-logo-to-opening.mp4', poster: 'diez-logo-to-opening-poster.jpg', x: 0, y: 0, w: 1920, h: 1080 } ],
+    // 10-2: press release (two pages) and the business card, logo side on top
+    [ { img: 'diez-press-release-p01.jpg', x: 315, y: 181, w: 508, h: 718 }, { img: 'diez-press-release-p02.jpg', x: 838, y: 181, w: 508, h: 718 },
+      { img: 'diez-businesscard-p01.png', x: 1361, y: 566, w: 244, h: 159 }, { img: 'diez-businesscard-p02.png', x: 1361, y: 740, w: 244, h: 159 } ],
+    // 10-3: the KAP shop windows (transparent margins, they run off the bottom as drawn), each with its spinning cap on top
+    [ { img: 'diez-shop-window-rusty-nail.png', clear: true, x: 222.2, y: 89.9, w: 687, h: 990.2 }, { img: 'diez-shop-window-wall-paint.png', clear: true, x: 1010.7, y: 89.9, w: 687, h: 990.2 },
+      { video: 'diez-cap-spin-rusty-nail.mp4', poster: 'diez-cap-spin-rusty-nail-poster.jpg', x: 288, y: 218.9, w: 542.3, h: 679.7 },
+      { video: 'diez-cap-spin-wall-paint.mp4', poster: 'diez-cap-spin-wall-paint-poster.jpg', x: 1076.2, y: 218.9, w: 542.3, h: 678.8 } ],
+    // 10-4: Gallery Girl
+    [ { img: 'diez-gallery-girl-1.jpg', x: 198, y: 288.48, w: 754, h: 503.04 }, { img: 'diez-gallery-girl-2.jpg', x: 967, y: 288.48, w: 754, h: 503.04 } ],
+  ] },
   // DOOM, Diving into the Wreck, Rietveld (and Foreign Object Debris above): Ken's live-deck slides ("directly copy from my original portfolio"), deck positions and crops
-  { no: '10', title: 'DOOM', client: 'Yale School of Art', scope: 'exhibition identity', year: '2024', slides: [
+  { id: 'doom', off: true, title: 'DOOM', client: 'Yale School of Art', scope: 'exhibition identity', year: '2024', slides: [
     [ { img: '07-poster.jpg', x: 297, y: 135, w: 573, h: 810 }, { img: '07-mark.jpg', x: 960, y: 539.4, w: 323.5, h: 405.6 }, { img: '07-handout.jpg', x: 1298.5, y: 539.4, w: 323.5, h: 405.6 } ],
     [ { img: '07-poster-held.jpg', x: 333, y: 155, w: 514, h: 770 }, { img: '07-poster-wall.jpg', x: 1028, y: 155, w: 514, h: 770 } ],
   ] },
-  { no: '11', title: 'IDA', client: 'International Documentary Association', scope: 'email, social and fundraising campaign', year: '2026', tight: true, slides: [
+  { id: 'ida', title: 'IDA', client: 'International Documentary Association', scope: 'email, social and fundraising campaign', year: '2026', tight: true, slides: [
     // Ken's 06-1…3 (2026-11-22; the landing-header slide removed): one paid message in three sizes;
     // the weekly email scrolling from the top down to the footer (runs off the bottom of the slide); the What's in My Bag carousel
     [ { img: 'ida-paid-red-1080x1920.png', x: 223.5, y: 228, w: 351, h: 624 }, { img: 'ida-paid-white-1080x1440.png', x: 589.5, y: 228, w: 468, h: 624 },
@@ -306,65 +324,69 @@ const WORKS = [
     [ { video: 'ida-email-weekly-scroll.mp4', poster: 'ida-email-weekly.jpg', x: 660, y: 108, w: 600, h: 972 } ],
     [ { img: 'ida-whats-in-my-bag.jpg', x: 0, y: 283.5, w: 1920, h: 512.9 } ],
   ] },
-  { no: '12', title: 'Diving into the Wreck', client: 'Yale School of Art', scope: 'publication', year: '2023', slides: [
+  { id: 'wreck', off: true, title: 'Diving into the Wreck', client: 'Yale School of Art', scope: 'publication', year: '2023', slides: [
     // Ken tightened all three to one 468 px band (2026-11-21); slide 3's crops are baked into the -crop files
     [ { img: '09-cover.jpg', x: 463, y: 307.3, w: 321, h: 465.4 }, { img: '09-spread-poem.jpg', x: 842, y: 306, w: 614.3, h: 468 } ],
     // slide 2 restored from Ken's January 2025 deck export (Portfolio_Zhao.pdf p. 3), images from the DIW_Ken scans
     [ { img: '09-spread-plates.jpg', x: 345, y: 306, w: 597, h: 468 }, { img: '09-spread-essay.jpg', x: 957, y: 306, w: 618, h: 468 } ],
     [ { img: '09-spread-photos-crop.jpg', x: 326, y: 306, w: 640.3, h: 468 }, { img: '09-spread-diagram-crop.jpg', x: 978.1, y: 306, w: 616.7, h: 468 } ],
   ] },
-  { no: '13', title: 'Rietveld Graduation Show', client: 'Gerrit Rietveld Academie', scope: 'identity', year: '2021', slides: [
+  { id: 'rietveld', off: true, title: 'Rietveld Graduation Show', client: 'Gerrit Rietveld Academie', scope: 'identity', year: '2021', slides: [
     [ { img: '13-poster.jpg', x: 607, y: 73, w: 706, h: 881 } ],
     [ { img: '13-poster-column.jpg', x: 259, y: 77, w: 622, h: 926 }, { img: '13-flags.jpg', x: 1039, y: 77, w: 622, h: 926 } ],
   ] },
 ];
-WORKS.forEach(w => { if (!w.slides.length) { w.slides = [null]; w.placeholder = true; } });
+// The site shows only works without 'off'; their numbers come from their position among them.
+const SHOWN = WORKS.filter(w => !w.off);
+SHOWN.forEach((w, i) => { w.no = String(i + 1).padStart(2, '0'); if (!w.slides.length) { w.slides = [null]; w.placeholder = true; } });
 
-/* Phone layouts, copied from Ken's 390 x 844 'M · NN-k' frames on the Web Outline (2026-11-21).
+/* Phone layouts, copied from Ken's 390 x 844 'M · NN-k' frames on the Web Outline (2026-11-21), keyed by work id + slide ('jsf-3').
    Each entry: [item number on the desktop slide (bg items not counted), x, y, w, h, options].
    Items not listed are hidden on phones. bare: no device around it (Ken removed the phone mocks);
    r: corner radius; src: a phone-only file (Ken cropped that picture differently in the phone frame). */
 const PHONE = {
-  '01-1': [[0, 16, 309.7, 358, 208.7]],
-  '01-2': [[1, 94, 243, 201.5, 358.3]],
-  '01-3': [[0, 65, 163, 260, 518, { bare: 1, r: 40, video: '04-web-phone-m2.mp4', poster: '04-web-phone-m2-poster.jpg' }]],   // Ken's phone cut rebuilt from the raw 720 x 1460 recording (620 x 1236, web page only)
-  '01-4': [[1, 45, 123, 300, 598.2]],
-  '02-1': [[0, 16, 294.6, 358, 238.9]],
-  '02-2': [[0, 16, 287.9, 358, 252.3]],
-  '02-3': [[1, 116, 177, 158.1, 237.2], [2, 116, 429.2, 158.1, 237.2]],
-  '02-4': [[0, 16, 287.9, 358, 252.3]],
-  '02-5': [[0, 16, 279.8, 358, 268.5]],
-  '03-2': [[0, 65, 191, 260, 462, { bare: 1, r: 8.8 }]],
-  '03-3': [[0, 65, 155, 260, 534, { bare: 1, r: 13.2 }]],
-  '03-4': [[0, 65, 248, 260, 347]],
-  '03-5': [[1, 16, 288, 359, 268]],                                    // Ken's M · 05-5 (2026-11-22): the Reddit video only
-  '04-1': [[0, 107.8, 173, 174.4, 231.9], [1, 16, 419.9, 358, 231.9]],
-  '04-2': [[0, 16, 215, 358, 245], [1, 79.8, 475, 230.3, 153.8]],
-  '05-1': [[0, 16, 313.3, 358, 201.4]],
-  '05-2': [[1, 106, 177, 177.9, 237.2], [2, 106, 429.2, 177.9, 237.2]],
-  '05-3': [[0, 65, 248, 260, 347, { bare: 1, r: 0 }]],
-  '05-4': [[0, 16, 294.7, 89.5, 119.3], [1, 105.5, 294.7, 89.5, 119.3], [2, 195, 294.7, 89.5, 119.3], [3, 284.5, 294.7, 89.5, 119.3],
+  'jsf-1': [[0, 16, 309.7, 358, 208.7]],
+  'jsf-2': [[1, 94, 243, 201.5, 358.3]],
+  'jsf-3': [[0, 65, 163, 260, 518, { bare: 1, r: 40, video: '04-web-phone-m2.mp4', poster: '04-web-phone-m2-poster.jpg' }]],   // Ken's phone cut rebuilt from the raw 720 x 1460 recording (620 x 1236, web page only)
+  'jsf-4': [[1, 45, 123, 300, 598.2]],
+  'trpl-1': [[0, 16, 294.6, 358, 238.9]],
+  'trpl-2': [[0, 16, 287.9, 358, 252.3]],
+  'trpl-3': [[1, 116, 177, 158.1, 237.2], [2, 116, 429.2, 158.1, 237.2]],
+  'trpl-4': [[0, 16, 287.9, 358, 252.3]],
+  'trpl-5': [[0, 16, 279.8, 358, 268.5]],
+  'hyundai-2': [[0, 65, 191, 260, 462, { bare: 1, r: 8.8 }]],
+  'hyundai-3': [[0, 65, 155, 260, 534, { bare: 1, r: 13.2 }]],
+  'hyundai-4': [[0, 65, 248, 260, 347]],
+  'hyundai-5': [[1, 16, 288, 359, 268]],                                    // Ken's M · 05-5 (2026-11-22): the Reddit video only
+  'kounellis-1': [[0, 107.8, 173, 174.4, 231.9], [1, 16, 419.9, 358, 231.9]],
+  'kounellis-2': [[0, 16, 215, 358, 245], [1, 79.8, 475, 230.3, 153.8]],
+  'ica-1': [[0, 16, 313.3, 358, 201.4]],
+  'ica-2': [[1, 106, 177, 177.9, 237.2], [2, 106, 429.2, 177.9, 237.2]],
+  'ica-3': [[0, 65, 248, 260, 347, { bare: 1, r: 0 }]],
+  'ica-4': [[0, 16, 294.7, 89.5, 119.3], [1, 105.5, 294.7, 89.5, 119.3], [2, 195, 294.7, 89.5, 119.3], [3, 284.5, 294.7, 89.5, 119.3],
            [4, 16, 413.9, 89.5, 119.3], [5, 105.5, 413.9, 89.5, 119.3], [6, 195, 413.9, 89.5, 119.3], [7, 284.5, 413.9, 89.5, 119.3]],
-  '06-1': [[0, 16, 197.6, 358, 432.9]],
-  '06-2': [[1, 17, 294, 358, 255.5]],
-  '06-3': [[0, 17, 297, 358, 249, { src: 'm-11-spread-yellow.jpg' }]],
-  '06-4': [[1, 15, 300, 359, 243]],
-  '07-1': [[0, 16, 313.3, 358, 201.4]],
-  '07-2': [[0, 17, 333, 358, 178.7]],
-  '07-3': [[1, 16, 288, 358, 268.5]],
-  '07-4': [[1, 65, 191, 260, 462, { bare: 1, r: 5.2 }]],
-  '08-1': [[0, 108, 143, 175, 265], [1, 16, 423, 359, 277]],
-  '08-2': [[0, 16, 186, 358, 278], [1, 80, 479, 230, 178]],
-  '10-1': [[0, 60, 314, 269, 380], [1, 69, 150, 118, 148], [2, 202, 150, 118, 149]],
-  '10-2': [[1, 50, 204, 290, 435]],
-  '11-1': [[2, 16, 243, 358, 357]],                                    // the square ad only
-  '11-2': [[0, 16, 124, 358, 580]],                                    // the newsletter scroll video
-  '11-3': [[0, 16, 294.5, 358, 239, { src: 'ida-whats-in-my-bag-first-two.jpg' }]],   // "show only first two slides"
-  '12-1': [[0, 107.5, 152, 175, 253], [1, 16, 420, 358, 272.7]],
-  '12-2': [[0, 21.9, 192, 346.2, 270.7], [1, 80, 477.7, 230, 174, { src: 'm-09-spread-essay.jpg' }]],
-  '12-3': [[0, 74.8, 190, 239.5, 175], [1, 15, 380.7, 359, 272.5]],
-  '13-1': [[0, 16, 190.6, 358, 446.7]],
-  '13-2': [[1, 65, 228, 260, 387]],
+  'fod-1': [[0, 16, 197.6, 358, 432.9]],
+  'fod-2': [[1, 17, 294, 358, 255.5]],
+  'fod-3': [[0, 17, 297, 358, 249, { src: 'm-11-spread-yellow.jpg' }]],
+  'fod-4': [[1, 15, 300, 359, 243]],
+  'cob-1': [[0, 16, 313.3, 358, 201.4]],
+  'cob-2': [[0, 17, 333, 358, 178.7]],
+  'cob-3': [[1, 16, 288, 358, 268.5]],
+  'cob-4': [[1, 65, 191, 260, 462, { bare: 1, r: 5.2 }]],
+  'sirens-1': [[0, 108, 143, 175, 265], [1, 16, 423, 359, 277]],
+  'sirens-2': [[0, 16, 186, 358, 278], [1, 80, 479, 230, 178]],
+  'doom-1': [[0, 60, 314, 269, 380], [1, 69, 150, 118, 148], [2, 202, 150, 118, 149]],
+  'doom-2': [[1, 50, 204, 290, 435]],
+  'diez-1': [[0, 16, 235, 358, 358, { video: 'diez-logo-to-opening-phone.mp4', poster: 'diez-logo-to-opening-phone-poster.jpg' }]],   // the same sequence cropped square
+  'diez-3': [[0, 16, 156, 358, 516], [2, 50.3, 223.2, 282.6, 354.2]],   // the left window and its cap only
+  'ida-1': [[2, 16, 243, 358, 357]],                                    // the square ad only
+  'ida-2': [[0, 16, 124, 358, 580]],                                    // the newsletter scroll video
+  'ida-3': [[0, 16, 294.5, 358, 239, { src: 'ida-whats-in-my-bag-first-two.jpg' }]],   // "show only first two slides"
+  'wreck-1': [[0, 107.5, 152, 175, 253], [1, 16, 420, 358, 272.7]],
+  'wreck-2': [[0, 21.9, 192, 346.2, 270.7], [1, 80, 477.7, 230, 174, { src: 'm-09-spread-essay.jpg' }]],
+  'wreck-3': [[0, 74.8, 190, 239.5, 175], [1, 15, 380.7, 359, 272.5]],
+  'rietveld-1': [[0, 16, 190.6, 358, 446.7]],
+  'rietveld-2': [[1, 65, 228, 260, 387]],
 };
 
 /* ---------- Build ---------- */
@@ -374,7 +396,7 @@ const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls)
 const landing = $('#landing'), nav = $('#nav'), indexEl = $('#index'), projline = $('#projline');
 const MOVE = matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 480;
 
-WORKS.forEach((w, i) => {
+SHOWN.forEach((w, i) => {
   // landing index: number, italic title, client, scope, year
   // one line of text that wraps by itself, as in Ken's Index-landing (no forced break after the client)
   const li = el('li', w.tight ? 'tight' : '', `<span class="no">${w.no}</span><span><i>${w.title}</i>, ${w.client}, ${w.scope}, ${w.year}</span>`);
@@ -391,10 +413,10 @@ WORKS.forEach((w, i) => {
 
 const IGPOST = '<div class="band"></div><i class="av"></i><span class="acct">juliastoschekfoundation</span><div class="shot"></div><svg class="icons" viewBox="0 0 291 30"><g fill="none" stroke="#EFEDE1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7.50024C12.7507 4.87896 8.99221 4.06888 6.17404 6.46918C3.35585 8.86948 2.95909 12.8826 5.17222 15.7215C7.0123 18.0817 12.581 23.0599 14.4061 24.6711C14.6102 24.8514 14.7124 24.9415 14.8315 24.9769C14.9354 25.0078 15.0491 25.0078 15.1531 24.9769C15.2722 24.9415 15.3742 24.8514 15.5785 24.6711C17.4036 23.0599 22.9722 18.0817 24.8124 15.7215C27.0255 12.8826 26.6771 8.84423 23.8105 6.46918C20.9439 4.09413 17.2492 4.87896 15 7.50024Z"/><path d="M57.2056 25.6538C51.3216 25.6538 46.5518 20.884 46.5518 15C46.5518 9.11607 51.3216 4.34619 57.2056 4.34619C63.0895 4.34619 67.8594 9.11607 67.8594 15C67.8594 16.761 67.4321 18.4222 66.6756 19.8856L67.8594 25.6538L62.0912 24.4701C60.6278 25.2266 58.9665 25.6538 57.2056 25.6538Z"/><path d="M93.4155 16.4944L99.1365 10.7733M104.989 7.28187L100.16 22.9767C99.727 24.3832 99.5103 25.0868 99.1371 25.3201C98.8134 25.5223 98.4124 25.5562 98.0598 25.4098C97.6532 25.2411 97.3233 24.5823 96.6649 23.2656L93.6062 17.1482C93.5017 16.9392 93.4494 16.8352 93.3797 16.7446C93.3177 16.6644 93.2463 16.5919 93.166 16.53C93.0775 16.4618 92.9752 16.4107 92.7756 16.3109L86.644 13.2451C85.3274 12.5868 84.669 12.2573 84.5003 11.8507C84.3539 11.4981 84.3873 11.0969 84.5896 10.7731C84.8229 10.3998 85.5264 10.1829 86.9334 9.74997L102.628 4.92079C103.734 4.58046 104.288 4.41042 104.661 4.54758C104.987 4.66705 105.243 4.92336 105.363 5.2488C105.5 5.62222 105.33 6.17522 104.99 7.28025L104.989 7.28187Z"/><path d="M290 23.4786V10.1524C290 7.58171 288.088 5.36904 285.433 4.86775C282.836 4.37742 280.164 4.37742 277.567 4.86775C274.912 5.36904 273 7.58171 273 10.1524V23.4786C273 25.0378 274.782 26.0081 276.199 25.2205L280.068 23.0685C280.953 22.5769 282.047 22.5769 282.932 23.0685L286.801 25.2205C288.218 26.0081 290 25.0378 290 23.4786Z"/></g></svg>';
 const IGREEL = '<svg class="icons" viewBox="0 0 30 130"><g fill="none" stroke="#EFEDE1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7.50024C12.7507 4.87896 8.99221 4.06888 6.17404 6.46918C3.35585 8.86948 2.95909 12.8826 5.17222 15.7215C7.0123 18.0817 12.581 23.0599 14.4061 24.6711C14.6102 24.8514 14.7124 24.9415 14.8315 24.9769C14.9354 25.0078 15.0491 25.0078 15.1531 24.9769C15.2722 24.9415 15.3742 24.8514 15.5785 24.6711C17.4036 23.0599 22.9722 18.0817 24.8124 15.7215C27.0255 12.8826 26.6771 8.84423 23.8105 6.46918C20.9439 4.09413 17.2492 4.87896 15 7.50024Z"/><path transform="translate(-42.3 53.6)" d="M57.2056 25.6538C51.3216 25.6538 46.5518 20.884 46.5518 15C46.5518 9.11607 51.3216 4.34619 57.2056 4.34619C63.0895 4.34619 67.8594 9.11607 67.8594 15C67.8594 16.761 67.4321 18.4222 66.6756 19.8856L67.8594 25.6538L62.0912 24.4701C60.6278 25.2266 58.9665 25.6538 57.2056 25.6538Z"/><path transform="translate(-79.6 102.9)" d="M93.4155 16.4944L99.1365 10.7733M104.989 7.28187L100.16 22.9767C99.727 24.3832 99.5103 25.0868 99.1371 25.3201C98.8134 25.5223 98.4124 25.5562 98.0598 25.4098C97.6532 25.2411 97.3233 24.5823 96.6649 23.2656L93.6062 17.1482C93.5017 16.9392 93.4494 16.8352 93.3797 16.7446C93.3177 16.6644 93.2463 16.5919 93.166 16.53C93.0775 16.4618 92.9752 16.4107 92.7756 16.3109L86.644 13.2451C85.3274 12.5868 84.669 12.2573 84.5003 11.8507C84.3539 11.4981 84.3873 11.0969 84.5896 10.7731C84.8229 10.3998 85.5264 10.1829 86.9334 9.74997L102.628 4.92079C103.734 4.58046 104.288 4.41042 104.661 4.54758C104.987 4.66705 105.243 4.92336 105.363 5.2488C105.5 5.62222 105.33 6.17522 104.99 7.28025L104.989 7.28187Z"/></g></svg><i class="av"></i><span class="acct">juliastoschekfoundation</span>';
-const pages = new Map();          // work number -> page element (built on first visit)
+const pages = new Map();          // position in SHOWN -> page element (built on first visit)
 function buildWork(i) {
   if (pages.has(i)) return pages.get(i);
-  const w = WORKS[i], page = el('section', 'page'), stage = el('div', 'stage');
+  const w = SHOWN[i], page = el('section', 'page'), stage = el('div', 'stage');
   w.slides.forEach(items => {
     const s = el('div', 'slide');
     if (!items) s.append(el('div', 'tocome', 'Slides to come'));
@@ -410,7 +432,7 @@ function buildWork(i) {
         if (!it.igpost) { const d = el('div', 'strip'); d.append(m); m = d; }
       }
       else if (it.video) { m = el('video'); m.muted = true; m.loop = true; m.playsInline = true; m.preload = 'metadata'; m.poster = A + it.poster; m.src = A + it.video; }
-      else { m = el('img'); m.alt = ''; m.draggable = false; m.decoding = 'async'; m.src = A + it.img; }
+      else { m = el('img'); m.alt = ''; m.draggable = false; m.decoding = it.clear ? 'sync' : 'async'; m.src = A + it.img; if (it.clear) m.classList.add('clear'); }
       if (it.safari) { const win = el('div', 'safari', '<div class="bar"><i></i><i></i><i></i><b></b></div>'); win.append(m); m = win; }
       if (it.phone) { const d = el('div', 'phone' + (it.story ? ' story' : '')); d.append(m);
         if (it.ad) d.insertAdjacentHTML('beforeend', `<div class="sthead"><i></i><b>${it.ad.acct}</b><span>Sponsored</span></div><div class="stcta"><b>${it.ad.cta}</b><span>›</span></div>`);
@@ -456,7 +478,7 @@ const isMobile = () => document.body.classList.contains('mobile');
 function place(m, x, y, w, h, it) { Object.assign(m.style, { left: x + 'px', top: y + 'px', width: w + 'px', height: h + 'px', fontSize: (w / 100) + 'px', borderRadius: it && it.radius ? (it.radius * w / it.w) + 'px' : '' }); }
 function layoutWork(i) {
   const slides = pages.get(i).querySelectorAll('.slide');
-  WORKS[i].slides.forEach((items, k) => {
+  SHOWN[i].slides.forEach((items, k) => {
     if (!items) return;
     items = items.filter(it => !it.bg);
     if (!items.length) return;
@@ -465,7 +487,7 @@ function layoutWork(i) {
     if (!isMobile()) { items.forEach((it, j) => { const e = els[j]; e.classList.remove('bare'); if (e.dataset.d) e.src = e.dataset.d;
       const v = e.tagName === 'VIDEO' ? e : e.querySelector('video'); if (v && v.dataset.d && v.src !== v.dataset.d) { v.poster = v.dataset.p; v.src = v.dataset.d; }
       Object.assign(e.style, { left: u(it.x), top: u(it.y), width: u(it.w), height: u(it.h), fontSize: u(it.w / 100), borderRadius: it.radius ? u(it.radius) : '' }); }); return; }
-    const spec = PHONE[`${WORKS[i].no}-${k + 1}`];
+    const spec = PHONE[`${SHOWN[i].id}-${k + 1}`];
     if (spec) {
       // Ken's phone frame: scaled to the screen's width (as in Figma), the pictures centred between the top line and the project line.
       // A browser's toolbars take height, so fitting the whole 844-high frame made everything ~20 % smaller; now a slide only
@@ -525,14 +547,14 @@ function setSlide(i, n) {
 function chrome() {
   document.body.classList.toggle('work', cur >= 0);
   if (cur >= 0) {
-    const w = WORKS[cur];
+    const w = SHOWN[cur];
     projline.innerHTML = `<i>${w.title}</i>, ${w.client}, ${w.scope}, ${w.year}`;
     indexEl.querySelectorAll('li:not(.home)').forEach((li, k) => { li.classList.toggle('cur', k === cur); li.classList.toggle('near', Math.abs(k - cur) <= 1); });
   }
-  const hash = cur < 0 ? '' : `#${WORKS[cur].no}-${slide + 1}`;
+  const hash = cur < 0 ? '' : `#${SHOWN[cur].no}-${slide + 1}`;
   try { history.replaceState(null, '', location.pathname + location.search + hash); } catch (e) {}
   // warm the next pictures
-  if (cur >= 0) { const nx = WORKS[cur].slides[slide + 1] || (WORKS[cur + 1] || {slides: []}).slides[0]; (nx || []).forEach(it => { const p = it.img || it.poster || (it.carousel && it.carousel[0]); if (p) new Image().src = A + p; }); }
+  if (cur >= 0) { const nx = SHOWN[cur].slides[slide + 1] || (SHOWN[cur + 1] || {slides: []}).slides[0]; (nx || []).forEach(it => { const p = it.img || it.poster || (it.carousel && it.carousel[0]); if (p) new Image().src = A + p; }); }
 }
 
 // Move to a page (landing or a work). dir: 'down' = the new page comes from below, 'up' = from above, null = cut.
@@ -558,13 +580,13 @@ function goLanding() { show(-1, 0, 'up'); }
 // previous on the first slide goes to the last. Clicks never change work; scrolling does.
 function stepSlide(d) {
   if (cur < 0 || busy) return;
-  const n = WORKS[cur].slides.length;
+  const n = SHOWN[cur].slides.length;
   if (n > 1) show(cur, (slide + d + n) % n, null);
 }
 function nextSlide() { stepSlide(1); }
 function prevSlide() { stepSlide(-1); }
 // Scroll: previous / next work.
-function nextWork() { if (busy) return; if (cur < WORKS.length - 1) { show(cur + 1, 0, 'down'); preview(); } }
+function nextWork() { if (busy) return; if (cur < SHOWN.length - 1) { show(cur + 1, 0, 'down'); preview(); } }
 function prevWork() { if (busy) return; if (cur > 0) { show(cur - 1, 0, 'up'); preview(); } else if (cur === 0) goLanding(); }
 
 /* ---------- Index: hover to open, short preview on scroll ---------- */
@@ -631,7 +653,7 @@ addEventListener('touchend', e => {
 
 /* ---------- Start (a link such as #02-3 opens work 02 on its third slide) ---------- */
 const m = location.hash.match(/^#(\d\d)-(\d+)$/);
-if (m) { const i = WORKS.findIndex(w => w.no === m[1]); if (i >= 0) show(i, Math.min(Math.max(+m[2] - 1, 0), WORKS[i].slides.length - 1), null); }
+if (m) { const i = SHOWN.findIndex(w => w.no === m[1]); if (i >= 0) show(i, Math.min(Math.max(+m[2] - 1, 0), SHOWN[i].slides.length - 1), null); }
 </script>
 </body>
 </html>
