@@ -139,9 +139,14 @@
   /* Phone only: INDEX, top right, back to the landing page */
   #home { position: fixed; z-index: 7; right: 15px; top: 15px; display: none; cursor: pointer; }
   body.mobile.work #home { display: block; }
-  body.mobile #index li.home { display: none; }
-  #index li.home .nn { color: transparent; }          /* the number keeps its space but is not shown */
-  /* Index inside a work: number + title, 30 px lines, starts 23 px in from the label */
+  /* Ken's 'index within work' and 'index preview' (2026-11-23): the label reads INDEX on desktop and the "00 INDEX" row is gone,
+     so 01 sits right under the label (y 54); phones keep SELECTED WORKS ('M · index open') */
+  #index li.home { display: none; }
+  #label .m { display: none; }
+  body.mobile #label .d { display: none; }
+  body.mobile #label .m { display: inline; }
+  body:not(.mobile) #index { margin-top: calc(var(--u) * 1); }
+  /* Index inside a work: number + title, 29 px lines, starts 23 px in from the label */
   #index { list-style: none; padding-left: calc(var(--u) * 23); white-space: pre; opacity: 0; pointer-events: none; transition: opacity 180ms linear; }
   #index li { color: var(--grey); cursor: pointer; width: max-content; padding-right: calc(var(--u) * 24); }
   #index li.cur, #index li:hover { color: #fff; }
@@ -204,7 +209,7 @@
 <div id="hits"><div id="prev" aria-label="Previous slide"></div><div id="next" aria-label="Next slide"></div></div>
 <div id="projline"></div>
 <nav id="nav">
-  <a id="label">SELECTED WORKS</a>
+  <a id="label"><span class="d">INDEX</span><span class="m">SELECTED WORKS</span></a>
   <ol id="index"><li class="home"><span class="nn">00</span>  INDEX</li></ol>
 </nav>
 <a id="home">INDEX</a>
@@ -556,6 +561,7 @@ function chrome() {
   try { history.replaceState(null, '', location.pathname + location.search + hash); } catch (e) {}
   // warm the next pictures
   if (cur >= 0) { const nx = SHOWN[cur].slides[slide + 1] || (SHOWN[cur + 1] || {slides: []}).slides[0]; (nx || []).forEach(it => { const p = it.img || it.poster || (it.carousel && it.carousel[0]); if (p) new Image().src = A + p; }); }
+  gcView();
 }
 
 // Move to a page (landing or a work). dir: 'down' = the new page comes from below, 'up' = from above, null = cut.
@@ -604,8 +610,10 @@ function closeIndex(now) { clearTimeout(closeTimer); if (now) nav.classList.remo
 nav.addEventListener('pointerenter', e => { if (e.pointerType !== 'touch') openIndex(); });
 nav.addEventListener('pointerleave', e => { if (e.pointerType !== 'touch') closeIndex(false); });
 $('#label').addEventListener('click', e => {
-  // mouse: back to the landing page. touch (no hover): tapping opens and closes the index; INDEX (top right) goes home.
-  if (matchMedia('(hover: none)').matches || isMobile()) { nav.classList.contains('open') ? closeIndex(true) : openIndex(); return; }
+  // mouse: back to the landing page. phones: tapping opens and closes the index; INDEX (top right) goes home.
+  // wide touch screens (iPad): the first tap opens the index, a second tap on INDEX goes home (the "00 INDEX" row used to).
+  if (isMobile()) { nav.classList.contains('open') ? closeIndex(true) : openIndex(); return; }
+  if (matchMedia('(hover: none)').matches && !nav.classList.contains('open')) { openIndex(); return; }
   closeIndex(true); goLanding();
 });
 indexEl.querySelector('.home').addEventListener('click', e => { e.stopPropagation(); closeIndex(true); goLanding(); });
@@ -652,9 +660,50 @@ addEventListener('touchend', e => {
   if (Math.abs(dy) > Math.abs(dx)) { dy < 0 ? nextWork() : prevWork(); } else if (cur >= 0) { dx < 0 ? nextSlide() : prevSlide(); }
 }, { passive: true });
 
+/* ---------- Visitor counts (GoatCounter, no cookies) ----------
+   Each work counts as its own page, /design/<id> (e.g. /design/hyundai); the landing page is /design/.
+   Time on a work is sent as events time/<id>/10s, time/<id>/30s, time/<id>/1min and time/<id>/2min, each the first
+   time a visitor's total time on that work passes the mark (tab in front, someone moved, scrolled, tapped or typed in
+   the last 2 minutes). So "time/hyundai/1min: 12" = 12 visitors spent a minute or more on Hyundai Artlab.
+   GC is the GoatCounter code (GC = 'abc' → dashboard at https://abc.goatcounter.com). Empty = counting off.
+   Your own visits: open kwzhao.com/design/#toggle-goatcounter once in each browser to leave them out. */
+const GC = 'serpenskirt';
+const GC_MARKS = [[10, '10s'], [30, '30s'], [60, '1min'], [120, '2min']];
+const GC_BASE = location.pathname.replace(/index\.html$/, '');
+const gcWaiting = [], gcTime = {};
+let gcLast = null, gcFirst = true, gcInputAt = Date.now();
+function gc(vars) {
+  if (!GC) return;
+  const g = window.goatcounter;
+  if (g && g.count) g.count(vars); else gcWaiting.push(vars);
+}
+function gcView() {
+  const id = cur < 0 ? '' : SHOWN[cur].id;
+  if (id === gcLast) return;                         // slide changes inside a work don't count again
+  gcLast = id;
+  const vars = { path: GC_BASE + id, title: cur < 0 ? document.title : SHOWN[cur].title };
+  if (!gcFirst) vars.referrer = '';                  // only the first page of a visit carries the outside referrer
+  gcFirst = false;
+  gc(vars);
+}
+if (GC) {
+  window.goatcounter = { no_onload: true, endpoint: `https://${GC}.goatcounter.com/count` };
+  const s = document.createElement('script');
+  s.async = true; s.src = 'https://gc.zgo.at/count.js'; s.dataset.goatcounter = window.goatcounter.endpoint;
+  s.onload = () => gcWaiting.splice(0).forEach(v => window.goatcounter.count(v));
+  document.head.appendChild(s);
+  ['pointerdown', 'pointermove', 'wheel', 'keydown', 'touchstart'].forEach(t => addEventListener(t, () => { gcInputAt = Date.now(); }, { passive: true }));
+  setInterval(() => {
+    if (cur < 0 || document.visibilityState !== 'visible' || Date.now() - gcInputAt > 120000) return;
+    const w = SHOWN[cur], t = gcTime[w.id] = (gcTime[w.id] || 0) + 1;
+    GC_MARKS.forEach(([sec, name]) => { if (t === sec) gc({ path: `time/${w.id}/${name}`, title: `${w.title}: ${name.replace(/(\d)([a-z])/, '$1 $2')} or more`, event: true }); });
+  }, 1000);
+}
+
 /* ---------- Start (a link such as #02-3 opens work 02 on its third slide) ---------- */
 const m = location.hash.match(/^#(\d\d)-(\d+)$/);
 if (m) { const i = SHOWN.findIndex(w => w.no === m[1]); if (i >= 0) show(i, Math.min(Math.max(+m[2] - 1, 0), SHOWN[i].slides.length - 1), null); }
+if (cur < 0) gcView();
 </script>
 </body>
 </html>
